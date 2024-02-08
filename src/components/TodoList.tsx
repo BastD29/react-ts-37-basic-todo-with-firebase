@@ -1,36 +1,45 @@
-import { Dispatch, SetStateAction } from "react";
-
-import { TodoType } from "../models/Todo";
+import { useEffect, useState } from "react";
 
 import TodoItem from "./TodoItem";
 
-type TodoListProps = {
-  todos: TodoType[];
-  setTodos: Dispatch<SetStateAction<TodoType[]>>;
-};
+import { TodoType } from "../models/Todo";
 
-export default function TodoList({ todos, setTodos }: TodoListProps) {
-  const handleDelete = (id: number): void => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-  };
+import { subscribeToTodos } from "../services/todo.service";
 
-  const handleUpdate = (id: number, newText: string): void => {
-    const newTodos: TodoType[] = todos.map((todo) =>
-      todo.id === id ? { ...todo, text: newText } : todo
+export default function TodoList({}) {
+  const [todos, setTodos] = useState<TodoType[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsLoading(true);
+
+    const unsubscribe = subscribeToTodos(
+      (updatedTodos) => {
+        setTodos(updatedTodos);
+        setIsLoading(false);
+        setError(null);
+      },
+      (error) => {
+        console.error("Error fetching todos:", error);
+        setError("Failed to load todos. Please try again.");
+        setIsLoading(false);
+      }
     );
 
-    setTodos(newTodos);
-  };
+    return () => unsubscribe();
+  }, []);
+
+  if (isLoading) return <p>Loading todos...</p>;
+
+  if (error) {
+    return <p className="error">{error}</p>;
+  }
 
   return (
     <div className="todo-list">
       {todos.map((todo) => (
-        <TodoItem
-          key={todo.id}
-          todo={todo}
-          handleDelete={handleDelete}
-          handleUpdate={handleUpdate}
-        />
+        <TodoItem key={todo.id} todo={todo} />
       ))}
     </div>
   );

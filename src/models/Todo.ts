@@ -1,5 +1,18 @@
+import { Timestamp } from "firebase/firestore";
+
 export type TodoType = {
-  id: number;
+  id?: string;
   text: string;
   isCompleted: boolean;
+  createdAt: Timestamp;
 };
+
+export type TodoResult =
+  | {
+      success: boolean;
+      error?: undefined;
+    }
+  | {
+      success: boolean;
+      error: string;
+    };
