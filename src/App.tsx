@@ -1,16 +1,23 @@
-import ErrorBoundary1 from "./components/ErrorBoundary1";
-import Example1 from "./components/Example1";
-import Example2 from "./components/Example2";
+import { useState } from "react";
+
+import { TodoType } from "./models/Todo";
+
+import TodoForm from "./components/TodoForm";
+import TodoList from "./components/TodoList";
 
 export default function App() {
+  const [todos, setTodos] = useState<TodoType[]>([]);
+  const [text, setText] = useState<string>("");
+
   return (
-    <>
-      <ErrorBoundary1 fallback={<h1>Something went wrong.</h1>}>
-        <Example1 />
-      </ErrorBoundary1>
-      <ErrorBoundary1 fallback={<h1>User data could not be loaded.</h1>}>
-        <Example2 />
-      </ErrorBoundary1>
-    </>
+    <div className="app">
+      <TodoForm
+        text={text}
+        todos={todos}
+        setTodos={setTodos}
+        setText={setText}
+      />
+      <TodoList todos={todos} setTodos={setTodos} />
+    </div>
   );
 }
